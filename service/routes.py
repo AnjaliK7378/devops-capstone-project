@@ -1,5 +1,5 @@
-from flask import Blueprint, request, jsonify
-from service.models import db, Account
+from service.models import Account  # Get *only* the Model from models.py
+from . import db                   # Get 'db' from the main __init__.py (the package)
 
 bp = Blueprint('accounts', __name__, url_prefix='/accounts')
 
