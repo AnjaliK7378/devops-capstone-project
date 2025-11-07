@@ -1,9 +1,8 @@
-"""
-Models for Your Service
-
-This module contains the model definitions for your service
-"""
 from . import db
+
+class DataValidationError(Exception):
+    """ Used for an error in the input data """
+    pass
 
 class Account(db.Model):
     """
