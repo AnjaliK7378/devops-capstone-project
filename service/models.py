@@ -6,7 +6,7 @@ All of the models are stored in this module
 import logging
 from datetime import date
 from flask_sqlalchemy import SQLAlchemy
-
+from . import db
 logger = logging.getLogger("flask.app")
 
 # Create the SQLAlchemy object to be initialized later in init_db()
@@ -53,12 +53,11 @@ class PersistentBase:
         db.session.delete(self)
         db.session.commit()
 
-    @classmethod
-    def init_db(app):
+   def init_db(app):
         """Initializes the database tables"""
         app.logger.info("Initializing database...")
         with app.app_context():
-            db.create_all()  # make our sqlalchemy tables
+            db.create_all()  # <-- THIS IS THE FIX
 
     @classmethod
     def all(cls):
