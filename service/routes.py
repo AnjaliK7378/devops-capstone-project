@@ -1,6 +1,7 @@
-from service.models import Account  # Get *only* the Model from models.py
-from . import db                   # Get 'db' from the main __init__.py (the package)
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify  # <-- THIS FIXES THE LINTER
+from service.models import Account             # <-- THIS IS PART 1 OF THE CIRCULAR FIX
+from . import db                               # <-- THIS IS PART 2 OF THE CIRCULAR FIX
+# (add any other imports your file needs below this)
 
 bp = Blueprint('accounts', __name__, url_prefix='/accounts')
 
