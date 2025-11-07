@@ -6,6 +6,7 @@ and SQL database
 """
 import sys
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy  # <-- Make sure this import is here
 from service import config
 from service.common import log_handlers
 
@@ -13,18 +14,21 @@ from service.common import log_handlers
 app = Flask(__name__)
 app.config.from_object(config)
 
-# Import the routes After the Flask app is created
-# pylint: disable=wrong-import-position, cyclic-import, wrong-import-order
-from service import routes, models  # noqa: F401 E402
+# Initialize SQLAlchemy
+db = SQLAlchemy(app)
 
+# ---
+# IMPORT 'MODELS' AND INITIALIZE DATABASE
+# ---
+# We must import models FIRST so that 'models.init_db(app)' can be called
 # pylint: disable=wrong-import-position
-from service.common import error_handlers, cli_commands  # noqa: F401 E402
+from service import models  # noqa: F401 E402
 
 # Set up logging for production
 log_handlers.init_logging(app, "gunicorn.error")
 
 app.logger.info(70 * "*")
-app.logger.info("  A C C O U N T   S E R V I C E   R U N N I N G  ".center(70, "*"))
+app.logger.info("  A C C O U N T  S E R V I C E  R U N N I N G  ".center(70, "*"))
 app.logger.info(70 * "*")
 
 try:
@@ -33,5 +37,13 @@ except Exception as error:  # pylint: disable=broad-except
     app.logger.critical("%s: Cannot continue", error)
     # gunicorn requires exit code 4 to stop spawning workers when they die
     sys.exit(4)
+
+# ---
+# IMPORT 'ROUTES' AND OTHER MODULES *AFTER* DATABASE IS READY
+# ---
+# We import these LAST to avoid circular dependencies
+# pylint: disable=wrong-import-position
+from service import routes  # noqa: F401 E402
+from service.common import error_handlers, cli_commands  # noqa: F401 E402
 
 app.logger.info("Service initialized!")
