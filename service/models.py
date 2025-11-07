@@ -55,10 +55,10 @@ class PersistentBase:
 
     @classmethod
     def init_db(app):
-    """Initializes the database tables"""
-    app.logger.info("Initializing database...")
-    with app.app_context():
-        db.create_all()  # make our sqlalchemy tables
+        """Initializes the database tables"""
+        app.logger.info("Initializing database...")
+        with app.app_context():
+            db.create_all()  # make our sqlalchemy tables
 
     @classmethod
     def all(cls):
