@@ -54,13 +54,10 @@ class PersistentBase:
         db.session.commit()
 
     @classmethod
-    def init_db(cls, app):
-        """Initializes the database session"""
-        logger.info("Initializing database")
-        cls.app = app
-        # This is where we initialize SQLAlchemy from the Flask app
-        db.init_app(app)
-        app.app_context().push()
+    def init_db(app):
+    """Initializes the database tables"""
+    app.logger.info("Initializing database...")
+    with app.app_context():
         db.create_all()  # make our sqlalchemy tables
 
     @classmethod
