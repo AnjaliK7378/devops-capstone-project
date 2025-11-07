@@ -53,7 +53,7 @@ class PersistentBase:
         db.session.delete(self)
         db.session.commit()
 
-   def init_db(app):
+    def init_db(app):
         """Initializes the database tables"""
         app.logger.info("Initializing database...")
         with app.app_context():
