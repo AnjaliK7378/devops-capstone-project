@@ -1,12 +1,9 @@
 """
 Package: service
-Package for the application models and service routes
-This module creates and configures the Flask app and sets up the logging
-and SQL database
 """
 import sys
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy  # <-- Make sure this import is here
+from flask_sqlalchemy import SQLAlchemy
 from service import config
 from service.common import log_handlers
 
@@ -19,8 +16,7 @@ db = SQLAlchemy(app)
 
 # ---
 # IMPORT 'MODELS' AND INITIALIZE DATABASE
-# ---
-# We must import models FIRST so that 'models.init_db(app)' can be called
+# We import models FIRST so that 'models.init_db(app)' can be called
 # pylint: disable=wrong-import-position
 from service import models  # noqa: F401 E402
 
@@ -40,10 +36,12 @@ except Exception as error:  # pylint: disable=broad-except
 
 # ---
 # IMPORT 'ROUTES' AND OTHER MODULES *AFTER* DATABASE IS READY
-# ---
 # We import these LAST to avoid circular dependencies
 # pylint: disable=wrong-import-position
 from service import routes  # noqa: F401 E402
 from service.common import error_handlers, cli_commands  # noqa: F401 E402
+
+# Register the blueprints
+app.register_blueprint(routes.bp)
 
 app.logger.info("Service initialized!")
