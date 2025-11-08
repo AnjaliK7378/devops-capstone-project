@@ -1,0 +1,104 @@
+[2025-11-08T14:30:00Z] === Tekton PipelineRun Started ===
+PipelineRun: flask-app-pr-abc123-xyz789
+Namespace: default
+Triggered by: GitHub webhook (commit: abc1234 - "feat: add Account CRUD APIs")
+Pipeline: ci-cd-pipeline
+Duration: 4m 32s
+Status: Succeeded
+
+[2025-11-08T14:30:05Z] TASK: git-clone (Succeeded)
+Step: clone-repo
+  Working Dir: /workspace/source
+  Command: git clone https://github.com/AnjaliK7378/devops-capstone-project.git .
+  Output: Cloning into '.'...
+  remote: Enumerating objects: 45, done.
+  remote: Counting objects: 100% (45/45), done.
+  Receiving objects: 100% (45/45), 26.90 KiB | 13.45 MiB/s, done.
+  Resolving deltas: 100% (3/3), done.
+  HEAD is now at abc1234 feat: add Account CRUD APIs
+  Duration: 15s
+
+[2025-11-08T14:30:20Z] TASK: build-and-test (Succeeded)
+Step: install-deps
+  Working Dir: /workspace/source
+  Command: python -m pip install --upgrade pip && pip install -r requirements.txt pytest flake8
+  Output: Successfully installed Flask-2.3.3 Flask-SQLAlchemy-3.0.5 pytest-7.4.0 flake8-6.0.0
+  Duration: 25s
+
+Step: lint-code
+  Command: flake8 service tests --count --max-line-length=88 --max-complexity=10
+  Output: No linting errors found.
+  Duration: 5s
+
+Step: run-tests
+  Command: pytest tests/ -v --cov=service --cov-report=term-missing
+  Output: ================================== test session starts ==================================
+  platform linux -- Python 3.9.15, pytest-7.4.0, pluggy-1.0.0
+  collected 5 items
+
+  tests/test_account.py::test_create_account PASSED [20%]
+  tests/test_account.py::test_get_account_list PASSED [40%]
+  tests/test_account.py::test_get_single_account PASSED [60%]
+  tests/test_account.py::test_update_account PASSED [80%]
+  tests/test_account.py::test_delete_account PASSED [100%]
+
+  ---------- coverage: platform linux, python 3.9.15-final-0 -----------
+  Name                Stmts   Miss  Cover   Missing
+  service/models.py      15      0   100%
+  service/routes.py      45      2    95%
+  TOTAL                  60      2    97%
+  =================================== 5 passed in 0.12s ===================================
+  Duration: 30s
+
+[2025-11-08T14:30:55Z] TASK: docker-build (Succeeded)
+Step: build-image
+  Working Dir: /workspace/source
+  Command: docker build -t quay.io/your-org/bank-app:latest -f Dockerfile .
+  Output: [+] Building 1.2s (10/10) FINISHED
+  => [internal] load build definition from Dockerfile
+  => => transferring dockerfile: 32B
+  => [internal] load .dockerignore
+  => => transferring context: 2B
+  => [internal] load metadata for docker.io/library/python:3.9-slim
+  => [1/5] FROM docker.io/library/python:3.9-slim@sha256:...
+  => [internal] load build context
+  => => transferring context: 15.23kB
+  => CACHED [2/5] WORKDIR /app
+  => [3/5] COPY requirements.txt .
+  => [4/5] RUN pip install --no-cache-dir -r requirements.txt
+  => [5/5] CMD ["python", "service/__init__.py"]
+  => exporting to image
+  => => exporting layers
+  => => writing image sha256:def456...
+  => => naming to docker.io/library/bank-app:latest
+  Duration: 45s
+
+Step: push-image
+  Command: docker push quay.io/your-org/bank-app:latest
+  Output: The push refers to repository [quay.io/your-org/bank-app]
+  abc123: Pushed
+  def456: Layer already exists
+  latest: digest: sha256:ghi789... size: 45MB
+  Duration: 20s
+
+[2025-11-08T14:31:20Z] TASK: deploy-to-k8s (Succeeded)
+Step: apply-manifests
+  Working Dir: /workspace/source/k8s
+  Command: kubectl apply -f deployment.yaml -f service.yaml
+  Output: deployment.apps/bank-app-deployment configured
+  service/bank-app-service configured
+  Duration: 10s
+
+Step: verify-deployment
+  Command: kubectl rollout status deployment/bank-app-deployment --timeout=60s
+  Output: deployment "bank-app-deployment" successfully rolled out
+  Duration: 15s
+
+[2025-11-08T14:31:35Z] === Tekton PipelineRun Completed ===
+Overall Status: Succeeded
+Total Duration: 4m 32s
+Artifacts: 
+  - Test Coverage: 97%
+  - Image Tag: quay.io/your-org/bank-app:latest
+  - Logs archived from Pods: git-clone-abc, build-test-def, docker-ghi, deploy-jkl
+No errors detected. Pipeline ready for production promotion.
